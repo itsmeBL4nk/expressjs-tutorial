@@ -88,6 +88,7 @@ router.patch("/api/users/:id", resolveIndexUserId, (request, response) =>{
 router.delete("/api/users/:id", resolveIndexUserId, (request, response) => {
     const{ findUserIndex} = request;
     // splice()get the index of the user that trying to removed
+    //test
     mockUsers.splice(findUserIndex, 1);
     return response.sendStatus(200);
 });
