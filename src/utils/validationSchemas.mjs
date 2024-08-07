@@ -18,5 +18,8 @@ export const createUserValidationSchema ={
     displayName: {
         notEmpty:true,
     },
+    password: {
+        notEmpty: true,
+    },
 };
 // this file is for validation/ para maayos ang code tignan/ey ka muna , eyy
