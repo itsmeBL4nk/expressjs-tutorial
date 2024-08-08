@@ -9,28 +9,18 @@ import { User} from "../utils/mongoose/schemas/user.js";
 
 const router =  Router();
 
-router.get("/api/users",
-query('filter').isString().
-notEmpty()
-.withMessage("Must not be empty").
-isLength({min: 3, max: 10})
-.withMessage("Must be atlease 3-10 characters"),
- (request, response) => {
-    // validationResult will the grab field and extract validation error
-    const result = validationResult(request);
-    console.log(result)
-    const {query:{filter,value},
-} = request;
-    if (!filter && !value)
-        return response.send(mockUsers);
-    if(filter && value) return response.send(
-        mockUsers.filter((user) => user[filter].includes(value))
-    );
-    return response.send(mockUsers);
-/* ...body is to take all the fields in body object and 
-unpack to this new object creating to assigned to new users*/ 
-}
-);
+
+router.get("/api/mongoUsers", async (request, response)=>{
+    try {
+        const users = await User.find();
+        return response.send(users); 
+    } catch (error) {
+        console.log(error);
+    }
+});
+// () => {} arrow  functions
+// Async is needed to run the await. and await magrarun kapag mayresponse error manhindi
+
 router.get(
     "/api/users/:id", resolveIndexUserId, (request, response) =>{
     const {findUserIndex} = request;
@@ -58,6 +48,57 @@ router.post("/api/users",
         return response.sendStatus(400);
     }
 });
+
+router.put("/api/mongoUsers/:id", async (req, res)=>{
+    try {
+        const id = req.params.id;
+        const updatedData = req.body;
+        const users = await User.findByIdAndUpdate(id, updatedData, { new: true });
+         
+        if(users){
+            res.status(200).send(users);
+        }else{
+            req.status(400).send({message: "User not found"});
+        }
+    } catch (error) {
+        res.status(500).send({message:"  Error updating User", error});
+        
+    }
+});
+
+router.delete("/api/mongoUsers/:id", async (req, res)=>{
+   
+    try {
+        const userId = req.params.id;
+        console.log();
+        const deletedUser = await User.findByIdAndDelete(userId);
+        if(!deletedUser){
+            return res.status(404).send('User not found');
+        }
+        res.send("User deleted Successfully");
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+
+router.delete("/api/users/:id", resolveIndexUserId, (request, response) => {
+    const{ findUserIndex} = request;
+    // splice()get the index of the user that trying to removed
+    //test
+    mockUsers.splice(findUserIndex, 1);
+    return response.sendStatus(200);
+});
+router.patch("/api/users/:id", resolveIndexUserId, (request, response) =>{
+    const {
+        body, findUserIndex} = request;
+        /*... or spread operator  allows us to quickly copy all or part of an existing
+         array or object into another array or object.*/ 
+    mockUsers[findUserIndex] = { ...mockUsers[findUserIndex], ...body};
+    return response.sendStatus(200);
+
+});
+export default router;
 // router.post("/api/users", checkSchema(createUserValidationSchema), 
     
 //     (request, response) =>{
@@ -86,30 +127,33 @@ router.post("/api/users",
 // isNan is not a number
 // put request must put the all value even though ur updating a singel value
 // put override the data
-router.put("/api/users/:id", resolveIndexUserId,(request, response) =>{
-    const {
-        body, findUserIndex} = request;
-        // findUser use to access that were trying to update
-        mockUsers[findUserIndex] = {id: mockUsers[findUserIndex].id, ...body};
-        return response.sendStatus(200);
+// router.get("/api/users",
+// query('filter').isString().
+// notEmpty()
+// .withMessage("Must not be empty").
+// isLength({min: 3, max: 10})
+// .withMessage("Must be atlease 3-10 characters"),
+//  (request, response) => {
+//     // validationResult will the grab field and extract validation error
+//     const result = validationResult(request);
+//     console.log(result)
+//     const {query:{filter,value},
+// } = request;
+//     if (!filter && !value)
+//         return response.send(mockUsers);
+//     if(filter && value) return response.send(
+//         mockUsers.filter((user) => user[filter].includes(value))
+//     );
+//     return response.send(mockUsers);
+// /* ...body is to take all the fields in body object and 
+// unpack to this new object creating to assigned to new users*/ 
+// }
+// );
 
-});
-
-router.patch("/api/users/:id", resolveIndexUserId, (request, response) =>{
-    const {
-        body, findUserIndex} = request;
-        /*... or spread operator  allows us to quickly copy all or part of an existing
-         array or object into another array or object.*/ 
-    mockUsers[findUserIndex] = { ...mockUsers[findUserIndex], ...body};
-    return response.sendStatus(200);
-
-});
-
-router.delete("/api/users/:id", resolveIndexUserId, (request, response) => {
-    const{ findUserIndex} = request;
-    // splice()get the index of the user that trying to removed
-    //test
-    mockUsers.splice(findUserIndex, 1);
-    return response.sendStatus(200);
-});
-export default router;
+// router.put("/api/users/:id", resolveIndexUserId,(request, response) =>{
+//     const {
+//         body, findUserIndex} = request;
+//         // findUser use to access that were trying to update
+//         mockUsers[findUserIndex] = {id: mockUsers[findUserIndex].id, ...body};
+//         return response.sendStatus(200);
+// });
