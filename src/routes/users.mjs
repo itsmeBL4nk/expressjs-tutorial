@@ -9,7 +9,6 @@ import { User} from "../utils/mongoose/schemas/user.js";
 
 const router =  Router();
 
-
 router.get("/api/mongoUsers", async (request, response)=>{
     try {
         const users = await User.find();
@@ -21,15 +20,7 @@ router.get("/api/mongoUsers", async (request, response)=>{
 // () => {} arrow  functions
 // Async is needed to run the await. and await magrarun kapag mayresponse error manhindi
 
-router.get(
-    "/api/users/:id", resolveIndexUserId, (request, response) =>{
-    const {findUserIndex} = request;
-    const findUser = mockUsers[findUserIndex];
-    if (!findUser) return response.sendStatus(404);
-    return response.send(findUser);   
-});
-
-router.post("/api/users", 
+router.post("/api/mongoUsers", 
     checkSchema(createUserValidationSchema),
     async (request, response) =>{
     const result = validationResult(request);
@@ -156,4 +147,11 @@ export default router;
 //         // findUser use to access that were trying to update
 //         mockUsers[findUserIndex] = {id: mockUsers[findUserIndex].id, ...body};
 //         return response.sendStatus(200);
+// });
+// router.get(
+//     "/api/users/:id", resolveIndexUserId, (request, response) =>{
+//     const {findUserIndex} = request;
+//     const findUser = mockUsers[findUserIndex];
+//     if (!findUser) return response.sendStatus(404);
+//     return response.send(findUser);   
 // });
