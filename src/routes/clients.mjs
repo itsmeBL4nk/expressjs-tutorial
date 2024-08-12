@@ -16,7 +16,6 @@ router.get("/api/clients", async (req, res)=> {
         console.log(error);
       }  
 });
-
 // create new client
 router.post("/api/clients", 
     checkSchema(createCLientValidationSchema),
@@ -41,10 +40,10 @@ router.post("/api/clients",
         console.log(err);
         return response.sendStatus(400);
     }
-
 });
 router.put("/api/clients/:id", checkSchema(createCLientValidationSchema),
     async (req, res)=>{
+        // ayusin tong validation kasi pag search nag validation agad
     const result = validationResult(req);
     if(!result.isEmpty()) return res.status(400).send(result.array());
 
@@ -98,9 +97,26 @@ try {
     } catch (err) {
         res.status(500).json({ err: 'An error occurred.'+ err});
     }
-     
 });
+router.get("/api/clients/:id/addresses", async (req, res)=>{
+    const clientId = req.params.id;
+    const clientAddress = await Address.find({client: clientId});
+    console.log(clientAddress);
+//     try {
+//     const clientAddress = await Address.find({client: clientId});
+//     console.log(clientAddress);
+//     if(!clientAddress || clientAddress.length === 0)
+//         {
+//         return res.status(404).json({
+//             message: "No Address found!"
+//         });
+//     }
+//     res.status(200).json(clientAddress);
+// } catch (error) {
+//     res.status(500).json({ error: 'An error occurred while retrieving addresses.' });
+// }
 
+});
 
 export default router;
 // router.post("/api/:clientId/address", async (req, res)=>{
@@ -209,3 +225,4 @@ export default router;
 //        "zip": "9090922"
 //      }
 // }
+
